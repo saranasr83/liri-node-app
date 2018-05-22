@@ -2,7 +2,7 @@ require("dotenv").config();
 
 //import from keys.js
 var keys = require("./keys.js")
-
+var inquirer = require('inquirer');
 var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 var request = require('request');
@@ -14,25 +14,43 @@ var spotify = new Spotify(keys.spotify);
 
 // console.log("client:", client)
 // console.log("spotify:", spotify)
-var nodeArgs = process.argv
-var command = process.argv[2]
+// var nodeArgs = process.argv
+// var command = process.argv[2]
 
-// if the input was more than one word
+// // if the input was more than one word
 
-var userInput = "";
+// var userInput = "";
 
-for (var i = 2; i < nodeArgs.length; i++) {
-    if (i > 2) {
-        userInput = userInput + " " + nodeArgs[i]
+// for (var i = 2; i < nodeArgs.length; i++) {
+//     if (i > 2) {
+//         userInput = userInput + " " + nodeArgs[i]
+//     } else {
+//         userInput += nodeArgs[i]
+//     }
+// }
+
+
+function myTweets(name) {
+    
+    if (!name) {
+        userInput = "MichelleObama";
     } else {
-        userInput += nodeArgs[i]
+        userInput = name
     }
+    var params = { screen_name: userInput };
+    client.get('statuses/user_timeline', params, function (error, tweets, response) {
+        if (!error) {
+            console.log(userInput, "lastest tweets: ");
+            for (var i = 0; i < 20; i++) {
+                console.log((i + 1), tweets[i].text);
+            }
+        } else {
+            return console.log('Error occurred: ' + err);
+        }
+    });
 }
 
-
-function myTweets() {
-
-}
+// myTweets();
 
 //spotify-this-song
 // Artist(s)
@@ -40,8 +58,14 @@ function myTweets() {
 // A preview link of the song from Spotify
 // The album that the song is from
 
-function spotifySong() {
-    spotify.search({ type: 'track', query: "All The Small Things" }, function (err, data) {
+function spotifySong(song) {
+    if (!song) {
+        userInput = "The Sign Ace of Base";
+    } else {
+        userInput = song
+    }
+
+    spotify.search({ type: 'track', query: userInput }, function (err, data) {
         if (!err) {
             // console.log("displaying artist",data.artists)
             // console.log("query:\n", JSON.stringify(data, null, 2));
@@ -56,7 +80,7 @@ function spotifySong() {
 
     });
 }
-spotifySong();
+// spotifySong();
 //movie-this
 // * Title of the movie.
 // * Year the movie came out.
@@ -67,10 +91,13 @@ spotifySong();
 // * Plot of the movie.
 // * Actors in the movie.
 
-function movie() {
-    if (userInput === "") {
-        userInput = "Mr. Nobody"
+function movie(movie) {
+    if (!movie) {
+        userInput = "Mr. Nobody";
+    } else {
+        userInput = movie
     }
+    
     // Then run a request to the OMDB API with the movie specified
     var queryUrl = "http://www.omdbapi.com/?t=" + userInput + "&y=&plot=short&apikey=trilogy";
 
@@ -93,21 +120,22 @@ function movie() {
             console.log("Language: " + JSON.parse(body).Language);
             console.log("Plot: " + JSON.parse(body).Plot);
             console.log("Actors: " + JSON.parse(body).Actors);
-         } 
-        
+        } else {
+            return console.log('Error occurred: ' + err);
+        }
+
         //adds text to log.txt
-        fs.appendFile('log.txt', "\nTitle: " + JSON.parse(body).Title + "\n");
-        fs.appendFile('log.txt', "Release Year: " + JSON.parse(body).Released + "\n");
-        fs.appendFile('log.txt', "IMdB Rating: " + JSON.parse(body).imdbRating + "\n");
-        fs.appendFile('log.txt', "Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + "\n");
-        fs.appendFile('log.txt', "Country: " + JSON.parse(body).Country + "\n");
-        fs.appendFile('log.txt', "Language: " + JSON.parse(body).Language + "\n");
-        fs.appendFile('log.txt', "Plot: " + JSON.parse(body).Plot + "\n");
-        fs.appendFile('log.txt', "Actors: " + JSON.parse(body).Actors + "\n");
+        fs.appendFile('log.txt', "\nTitle: " + JSON.parse(body).Title + "\n", function(){});
+        fs.appendFile('log.txt', "Release Year: " + JSON.parse(body).Released + "\n", function(){});
+        fs.appendFile('log.txt', "IMdB Rating: " + JSON.parse(body).imdbRating + "\n", function(){});
+        fs.appendFile('log.txt', "Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + "\n", function(){});
+        fs.appendFile('log.txt', "Country: " + JSON.parse(body).Country + "\n", function(){});
+        fs.appendFile('log.txt', "Language: " + JSON.parse(body).Language + "\n", function(){});
+        fs.appendFile('log.txt', "Plot: " + JSON.parse(body).Plot + "\n", function(){});
+        fs.appendFile('log.txt', "Actors: " + JSON.parse(body).Actors + "\n", function(){});
 
     });
 }
-// movie();
 
 //do-what-it-says
 function random() {
@@ -122,8 +150,84 @@ function random() {
         }
 
         // We will then print the contents of data
-        console.log(data);
+        // console.log(data);
+        var dataArray = data.split(",")
+        console.log(dataArray)
+        if (dataArray[0] == "spotify-this-song") {
+            spotifySong(dataArray[1]);
+        } else if (dataArray[0]== "movie-info"){
+            movie(dataArray[1]);
+        } else if (dataArray[0]== "my-tweets"){
+            myTweets(dataArray[1]);
+        } else {
+            console.log("there is something wrong")
+        }
     })
 
 }
+var askQuestion = function () {
+
+    // runs inquirer and asks the user a series of questions whose replies are
+    // stored within the variable answers inside of the .then statement
+    inquirer.prompt([
+        {
+            name: "name",
+            type: "name",
+            message: "What is your name?"
+        }, {
+            name: "question",
+            type: "list",
+            message: "How can I help you today?",
+            choices: ["check-tweets", "spotify-this-song", "movie-info", "do-what-i-say"]
+        },
+    ]).then(function (answers) {
+        if (answers.question === "check-tweets") {
+            console.log("\nHi " + answers.name)
+            inquirer.prompt([
+                {
+                    name: "screenName",
+                    type: "input",
+                    message: "Type the name of the person you want to check they tweets"
+                },
+            ]).then(function(answers){
+                myTweets(answers.screenName);
+            })
+        }
+        else if (answers.question === "spotify-this-song"){
+            console.log("\nHi " + answers.name)
+            inquirer.prompt([
+                {
+                    name: "songName",
+                    type: "input",
+                    message: "What song do you wan to spotify?"
+                },
+            ]).then(function(answers){
+                spotifySong(answers.songName);
+            })
+        }
+        else if (answers.question === "movie-info"){
+            console.log("\nHi " + answers.name)
+            inquirer.prompt([
+                {
+                    name: "movieName",
+                    type: "input",
+                    message: "What movie are you looking for it?"
+                },
+            ]).then(function(answers){
+                movie(answers.movieName);
+            })
+        }
+        // switch case
+
+        switch (answers.question) {
+            
+        
+            case "do-what-i-say":
+                random();
+                break;
+        }
+
+    });
+}
+askQuestion();
 
