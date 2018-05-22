@@ -10,11 +10,11 @@ movie-this
 
 do-what-it-says
 
-#Getting Started
+##Getting Started
 Clone down repo.
 Run command 'npm install' in Terminal or GitBash
 Run command 'node liri.js' 
-#the info we get from each input
+##the info we get from each input
 using inquirer you can choose an option from the list:
 1- node liri.js my-tweets
 Displays my last 20 tweets and when they were created in terminal/bash window.
@@ -44,7 +44,7 @@ Shows the following information in terminal/bash.
 
 4- node liri.js do-what-it-says
 Takes the text from random.txt and runs the song through spotify-this-song command
-#Tech used
+##Tech used
 Node.js
 Twitter NPM Package 
 Spotify NPM Package 
@@ -52,10 +52,10 @@ Request NPM Package
 Inquirer NPM Package
 fs.appendFile
 fs.readFile
-#Prerequisites
+##Prerequisites
  -Node.js 
  -Download the latest version of Node https://nodejs.org/en/
-#Built With
+##Built With
 Visual Studio - Text Editor
-#Author
+##Author
 Sara Khosravi 
