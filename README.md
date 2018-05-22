@@ -9,6 +9,8 @@ spotify-this-song
 movie-this
 
 do-what-it-says
+## demo
+![demo](demo.gif)
 
 ## Getting Started
 
